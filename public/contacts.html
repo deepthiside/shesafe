@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SheSafe - Circle of Trust</title>
+    <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --rose: #ff4d6d;
+            --rose-deep: #c9184a;
+            --rose-soft: #fff0f3;
+            --ink: #1a1a2e;
+            --ink-light: #4a4a6a;
+            --mist: #f7f8fc;
+            --white: #ffffff;
+            --border: #ebebf0;
+        }
+        body {
+            font-family: 'Sora', sans-serif;
+            background: var(--mist);
+            min-height: 100vh;
+        }
+        .navbar {
+            background: var(--white);
+            border-bottom: 1px solid var(--border);
+            padding: 0 20px;
+            height: 62px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .nav-left {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .back-btn {
+            width: 34px;
+            height: 34px;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            background: none;
+            cursor: pointer;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+        .back-btn:hover { background: var(--rose-soft); border-color: var(--rose); }
+        .nav-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--ink);
+        }
+        .container {
+            max-width: 480px;
+            margin: 0 auto;
+            padding: 20px 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+        .card {
+            background: var(--white);
+            border-radius: 18px;
+            border: 1px solid var(--border);
+            overflow: hidden;
+        }
+        .card-header {
+            padding: 16px 18px;
+            border-bottom: 1px solid var(--border);
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--ink);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .form-body {
+            padding: 18px;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+        label {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--ink-light);
+            letter-spacing: 0.3px;
+        }
+        input {
+            padding: 11px 14px;
+            border: 1.5px solid var(--border);
+            border-radius: 12px;
+            font-family: 'Sora', sans-serif;
+            font-size: 13px;
+            color: var(--ink);
+            background: var(--mist);
+            outline: none;
+            transition: all 0.2s;
+        }
+        input:focus {
+            border-color: var(--rose);
+            background: var(--white);
+            box-shadow: 0 0 0 3px rgba(255,77,109,0.08);
+        }
+        .add-btn {
+            width: 100%;
+            padding: 13px;
+            background: linear-gradient(135deg, var(--rose), var(--rose-deep));
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-family: 'Sora', sans-serif;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 4px 16px rgba(255,77,109,0.25);
+        }
+        .add-btn:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(255,77,109,0.35); }
+        .add-btn:active { transform: translateY(0); }
+        .add-btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+        .message {
+            padding: 10px 14px;
+            border-radius: 10px;
+            font-size: 12px;
+            display: none;
+            text-align: center;
+            font-weight: 500;
+        }
+        .message.success { background: #d4edda; color: #155724; display: block; }
+        .message.error { background: #f8d7da; color: #721c24; display: block; }
+        /* CONTACTS LIST */
+        .contacts-list {
+            padding: 8px;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        .contact-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 12px;
+            border-radius: 12px;
+            transition: background 0.2s;
+        }
+        .contact-row:hover { background: var(--mist); }
+        .contact-initial {
+            width: 42px;
+            height: 42px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, var(--rose), var(--rose-deep));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 16px;
+            font-weight: 600;
+            flex-shrink: 0;
+            box-shadow: 0 3px 10px rgba(255,77,109,0.2);
+        }
+        .contact-info {
+            flex: 1;
+        }
+        .contact-name {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--ink);
+        }
+        .contact-detail {
+            font-size: 11px;
+            color: var(--ink-light);
+            margin-top: 2px;
+        }
+        .delete-btn {
+            width: 30px;
+            height: 30px;
+            border-radius: 8px;
+            background: none;
+            border: 1px solid var(--border);
+            cursor: pointer;
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--ink-light);
+            transition: all 0.2s;
+        }
+        .delete-btn:hover {
+            background: #f8d7da;
+            border-color: #f5c6cb;
+            color: #c0392b;
+        }
+        .empty-state {
+            padding: 30px 20px;
+            text-align: center;
+            color: var(--ink-light);
+            font-size: 12px;
+            line-height: 2;
+        }
+        .empty-icon { font-size: 32px; margin-bottom: 8px; }
+    </style>
+</head>
+<body>
+
+<nav class="navbar">
+    <div class="nav-left">
+        <button class="back-btn" onclick="window.location.href='dashboard.html'">←</button>
+        <span class="nav-title">Circle of Trust</span>
+    </div>
+</nav>
+
+<div class="container">
+
+    <!-- ADD CONTACT FORM -->
+    <div class="card">
+        <div class="card-header">
+            ➕ Add Trusted Person
+        </div>
+        <div class="form-body">
+            <div class="message" id="message"></div>
+            <div class="form-group">
+                <label>Full Name</label>
+                <input type="text" id="contact_name" placeholder="e.g. Mom, Dad, Best Friend" />
+            </div>
+            <div class="form-group">
+                <label>Email Address</label>
+                <input type="email" id="contact_email" placeholder="their email address" />
+            </div>
+            <div class="form-group">
+                <label>Phone Number</label>
+                <input type="tel" id="contact_phone" placeholder="their phone number" />
+            </div>
+            <button class="add-btn" id="addBtn" onclick="addContact()">
+                Add to Circle
+            </button>
+        </div>
+    </div>
+
+    <!-- CONTACTS LIST -->
+    <div class="card">
+        <div class="card-header">
+            👥 Your Circle
+        </div>
+        <div id="contactsList">
+            <div class="empty-state">
+                <div class="empty-icon">👥</div>
+                No trusted contacts yet<br>Add your family above
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    window.onload = async () => {
+        await checkLogin();
+        loadContacts();
+    };
+
+    async function checkLogin() {
+        const res = await fetch('/api/auth/check');
+        const data = await res.json();
+        if (!data.loggedIn) window.location.href = 'index.html';
+    }
+
+    async function addContact() {
+        const name = document.getElementById('contact_name').value.trim();
+        const email = document.getElementById('contact_email').value.trim();
+        const phone = document.getElementById('contact_phone').value.trim();
+        const btn = document.getElementById('addBtn');
+        const msg = document.getElementById('message');
+
+        msg.className = 'message';
+        msg.textContent = '';
+
+        if (!name) {
+            msg.className = 'message error';
+            msg.textContent = '⚠️ Please enter a name!';
+            return;
+        }
+
+        btn.disabled = true;
+        btn.textContent = 'Adding...';
+
+        try {
+            const res = await fetch('/api/contacts/add', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    contact_name: name,
+                    contact_email: email,
+                    contact_phone: phone
+                })
+            });
+            const data = await res.json();
+            if (data.success) {
+                msg.className = 'message success';
+                msg.textContent = '✅ Added to your circle!';
+                document.getElementById('contact_name').value = '';
+                document.getElementById('contact_email').value = '';
+                document.getElementById('contact_phone').value = '';
+                loadContacts();
+            } else {
+                msg.className = 'message error';
+                msg.textContent = '❌ ' + data.message;
+            }
+        } catch (e) {
+            msg.className = 'message error';
+            msg.textContent = '❌ Something went wrong!';
+        }
+
+        btn.disabled = false;
+        btn.textContent = 'Add to Circle';
+    }
+
+    async function loadContacts() {
+        try {
+            const res = await fetch('/api/contacts/list');
+            const data = await res.json();
+            const list = document.getElementById('contactsList');
+
+            if (!data.success || !data.contacts.length) {
+                list.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-icon">👥</div>
+                        No trusted contacts yet<br>Add your family above
+                    </div>`;
+                return;
+            }
+
+            list.innerHTML = '<div class="contacts-list">' +
+                data.contacts.map(c => `
+                    <div class="contact-row">
+                        <div class="contact-initial">${c.contact_name.charAt(0).toUpperCase()}</div>
+                        <div class="contact-info">
+                            <div class="contact-name">${c.contact_name}</div>
+                            <div class="contact-detail">
+                                ${c.contact_phone || ''} ${c.contact_email ? '· ' + c.contact_email : ''}
+                            </div>
+                        </div>
+                        <button class="delete-btn" onclick="deleteContact(${c.id})">🗑</button>
+                    </div>
+                `).join('') + '</div>';
+        } catch (e) { console.log(e); }
+    }
+
+    async function deleteContact(id) {
+        if (!confirm('Remove this person from your circle?')) return;
+        try {
+            await fetch('/api/contacts/delete/' + id, { method: 'DELETE' });
+            loadContacts();
+        } catch (e) { console.log(e); }
+    }
+</script>
+</body>
+</html>

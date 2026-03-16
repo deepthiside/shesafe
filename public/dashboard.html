@@ -1,0 +1,1083 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SheSafe</title>
+    <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&family=DM+Serif+Display&display=swap" rel="stylesheet">
+    <style>
+    #fakeCallScreen {
+    display: none !important;
+    }
+    #fakeCallScreen.show {
+        display: flex !important;
+    }
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --rose: #ff4d6d;
+            --rose-deep: #c9184a;
+            --rose-soft: #fff0f3;
+            --rose-mid: #ffb3c1;
+            --ink: #1a1a2e;
+            --ink-light: #4a4a6a;
+            --mist: #f7f8fc;
+            --white: #ffffff;
+            --border: #ebebf0;
+            --green: #00c896;
+            --shadow-sm: 0 2px 8px rgba(26,26,46,0.06);
+            --shadow-md: 0 8px 32px rgba(26,26,46,0.10);
+            --shadow-rose: 0 8px 32px rgba(255,77,109,0.18);
+        }
+
+        body {
+            font-family: 'Sora', sans-serif;
+            background: var(--mist);
+            min-height: 100vh;
+            color: var(--ink);
+        }
+
+        /* ── NAVBAR ── */
+        .navbar {
+            background: var(--white);
+            border-bottom: 1px solid var(--border);
+            padding: 0 20px;
+            height: 62px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 200;
+        }
+
+        .nav-left {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .nav-logo {
+            width: 34px;
+            height: 34px;
+            background: linear-gradient(135deg, var(--rose), var(--rose-deep));
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            box-shadow: var(--shadow-rose);
+        }
+
+        .nav-title {
+            font-family: 'DM Serif Display', serif;
+            font-size: 19px;
+            color: var(--ink);
+            letter-spacing: -0.3px;
+        }
+
+        .nav-right {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .battery-pill {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            background: var(--mist);
+            border: 1px solid var(--border);
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 500;
+            color: var(--ink-light);
+        }
+
+        .battery-icon {
+            font-size: 13px;
+        }
+
+        .user-chip {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            background: var(--rose-soft);
+            padding: 5px 12px 5px 5px;
+            border-radius: 20px;
+            cursor: pointer;
+        }
+
+        .user-chip-avatar {
+            width: 24px;
+            height: 24px;
+            background: linear-gradient(135deg, var(--rose), var(--rose-deep));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .user-chip-name {
+            font-size: 12px;
+            font-weight: 500;
+            color: var(--rose-deep);
+        }
+
+        .logout-btn {
+            width: 32px;
+            height: 32px;
+            background: none;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 15px;
+            transition: all 0.2s;
+            color: var(--ink-light);
+        }
+
+        .logout-btn:hover {
+            background: var(--rose-soft);
+            border-color: var(--rose-mid);
+            color: var(--rose);
+        }
+
+        /* ── SCROLL CONTAINER ── */
+        .scroll-wrap {
+            max-width: 480px;
+            margin: 0 auto;
+            padding: 18px 16px 100px;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        /* ── SECTION LABEL ── */
+        .section-label {
+            font-size: 10px;
+            font-weight: 600;
+            letter-spacing: 1.2px;
+            text-transform: uppercase;
+            color: var(--ink-light);
+            margin-bottom: -6px;
+            padding-left: 2px;
+        }
+
+        /* ── CARD BASE ── */
+        .card {
+            background: var(--white);
+            border-radius: 18px;
+            border: 1px solid var(--border);
+            overflow: hidden;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .card-header {
+            padding: 14px 18px 12px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .card-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--ink);
+            display: flex;
+            align-items: center;
+            gap: 7px;
+        }
+
+        .card-title-icon {
+            width: 26px;
+            height: 26px;
+            border-radius: 7px;
+            background: var(--rose-soft);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 13px;
+        }
+
+
+        /* ── LIVE BADGE ── */
+        .live-badge {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            background: #e8faf4;
+            color: #00a875;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 10px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+
+        .live-dot {
+            width: 5px;
+            height: 5px;
+            background: var(--green);
+            border-radius: 50%;
+            animation: blink 1.4s ease-in-out infinite;
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.4; transform: scale(0.8); }
+        }
+
+        /* ── MAP ── */
+        .map-body {
+            height: 200px;
+            background: var(--mist);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .map-animated-bg {
+            position: absolute;
+            inset: 0;
+            background:
+                linear-gradient(135deg, #fff0f3 0%, #fce4ec 40%, #f8bbd0 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Animated grid lines */
+        .map-grid {
+            position: absolute;
+            inset: 0;
+            background-image:
+                linear-gradient(rgba(255,77,109,0.07) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,77,109,0.07) 1px, transparent 1px);
+            background-size: 30px 30px;
+            animation: gridMove 8s linear infinite;
+        }
+
+        @keyframes gridMove {
+            0% { transform: translate(0, 0); }
+            100% { transform: translate(30px, 30px); }
+        }
+
+        /* Pulse rings */
+        .map-pulse-ring {
+            position: absolute;
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            background: var(--rose);
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            box-shadow: 0 0 0 0 rgba(255,77,109,0.4);
+            animation: mapPulse 2s ease-out infinite;
+            z-index: 2;
+        }
+
+        @keyframes mapPulse {
+            0% { box-shadow: 0 0 0 0 rgba(255,77,109,0.5); }
+            70% { box-shadow: 0 0 0 30px rgba(255,77,109,0); }
+            100% { box-shadow: 0 0 0 0 rgba(255,77,109,0); }
+        }
+
+        .map-pin {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -100%);
+            font-size: 28px;
+            z-index: 3;
+            animation: pinDrop 0.5s cubic-bezier(0.34,1.56,0.64,1) both;
+            filter: drop-shadow(0 4px 8px rgba(255,77,109,0.4));
+        }
+
+        @keyframes pinDrop {
+            from { transform: translate(-50%, -200%); opacity: 0; }
+            to { transform: translate(-50%, -100%); opacity: 1; }
+        }
+
+        .map-coords {
+            position: absolute;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(255,255,255,0.92);
+            backdrop-filter: blur(8px);
+            border: 1px solid var(--border);
+            padding: 5px 14px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 500;
+            color: var(--ink-light);
+            white-space: nowrap;
+            z-index: 4;
+        }
+
+        .map-status {
+            padding: 10px 18px;
+            font-size: 11px;
+            color: var(--ink-light);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: var(--mist);
+            border-top: 1px solid var(--border);
+        }
+
+        /* ── SOS SECTION ── */
+        .sos-wrap {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 28px 20px 24px;
+            background: var(--white);
+            border-radius: 18px;
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow-sm);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .sos-bg-glow {
+            position: absolute;
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(255,77,109,0.06) 0%, transparent 70%);
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            pointer-events: none;
+        }
+
+        .sos-btn {
+            position: relative;
+            width: 128px;
+            height: 128px;
+            border-radius: 50%;
+            border: none;
+            background: linear-gradient(145deg, #ff6b85, var(--rose-deep));
+            color: white;
+            font-family: 'Sora', sans-serif;
+            font-size: 18px;
+            font-weight: 700;
+            letter-spacing: 3px;
+            cursor: pointer;
+            box-shadow:
+                0 0 0 10px rgba(255,77,109,0.10),
+                0 0 0 20px rgba(255,77,109,0.05),
+                0 12px 40px rgba(255,77,109,0.35);
+            transition: transform 0.15s ease, box-shadow 0.15s ease;
+            z-index: 1;
+        }
+
+        .sos-btn::before {
+            content: '';
+            position: absolute;
+            inset: 6px;
+            border-radius: 50%;
+            border: 2px solid rgba(255,255,255,0.25);
+        }
+
+        .sos-btn:hover {
+            transform: scale(1.04);
+            box-shadow:
+                0 0 0 12px rgba(255,77,109,0.12),
+                0 0 0 24px rgba(255,77,109,0.06),
+                0 16px 50px rgba(255,77,109,0.45);
+        }
+
+        .sos-btn:active {
+            transform: scale(0.96);
+        }
+
+        .sos-hint {
+            margin-top: 16px;
+            font-size: 11px;
+            color: var(--ink-light);
+            text-align: center;
+            letter-spacing: 0.3px;
+        }
+
+        .sos-hint strong {
+            color: var(--rose);
+        }
+
+        /* ── CHAT ── */
+        .chat-messages {
+            height: 210px;
+            overflow-y: auto;
+            padding: 14px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            background: var(--mist);
+            scroll-behavior: smooth;
+        }
+
+        .chat-messages::-webkit-scrollbar { width: 3px; }
+        .chat-messages::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+        .chat-empty {
+            text-align: center;
+            color: #bbb;
+            font-size: 12px;
+            margin: auto;
+            line-height: 2;
+        }
+
+        .msg-row {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .msg-row.me { align-items: flex-end; }
+        .msg-row.them { align-items: flex-start; }
+        .msg-row.sos-row { align-items: center; }
+
+        .msg-sender {
+            font-size: 10px;
+            font-weight: 600;
+            color: var(--ink-light);
+            margin-bottom: 3px;
+            padding: 0 4px;
+        }
+
+        .bubble {
+            max-width: 78%;
+            padding: 9px 14px;
+            border-radius: 16px;
+            font-size: 13px;
+            line-height: 1.5;
+            position: relative;
+        }
+
+        .bubble.mine {
+            background: linear-gradient(135deg, var(--rose), var(--rose-deep));
+            color: white;
+            border-bottom-right-radius: 4px;
+            box-shadow: 0 2px 12px rgba(255,77,109,0.2);
+        }
+
+        .bubble.theirs {
+            background: var(--white);
+            color: var(--ink);
+            border-bottom-left-radius: 4px;
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .bubble.sos {
+            background: linear-gradient(135deg, #ff3355, var(--rose-deep));
+            color: white;
+            border-radius: 12px;
+            width: 95%;
+            max-width: 95%;
+            text-align: center;
+            font-weight: 600;
+            font-size: 12px;
+            padding: 12px 16px;
+            box-shadow: 0 4px 20px rgba(255,77,109,0.3);
+            animation: sosIn 0.4s cubic-bezier(0.34,1.56,0.64,1);
+        }
+
+        @keyframes sosIn {
+            from { transform: scale(0.85); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        .bubble-time {
+            font-size: 10px;
+            margin-top: 4px;
+            opacity: 0.65;
+        }
+
+        .chat-input-row {
+            padding: 10px 12px;
+            display: flex;
+            gap: 8px;
+            background: var(--white);
+            border-top: 1px solid var(--border);
+        }
+
+        .chat-input {
+            flex: 1;
+            padding: 10px 14px;
+            border: 1.5px solid var(--border);
+            border-radius: 22px;
+            font-family: 'Sora', sans-serif;
+            font-size: 12px;
+            color: var(--ink);
+            background: var(--mist);
+            outline: none;
+            transition: border-color 0.2s, background 0.2s;
+        }
+
+        .chat-input:focus {
+            border-color: var(--rose-mid);
+            background: var(--white);
+        }
+
+        .send-btn {
+            width: 38px;
+            height: 38px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, var(--rose), var(--rose-deep));
+            border: none;
+            color: white;
+            font-size: 14px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 12px rgba(255,77,109,0.25);
+            transition: transform 0.15s, box-shadow 0.15s;
+            flex-shrink: 0;
+        }
+
+        .send-btn:hover { transform: scale(1.07); }
+        .send-btn:active { transform: scale(0.95); }
+
+        /* ── CIRCLE OF TRUST ── */
+        .circle-body {
+            padding: 16px;
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .contact-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .contact-avatar {
+            width: 46px;
+            height: 46px;
+            border-radius: 14px;
+            background: linear-gradient(135deg, var(--rose), var(--rose-deep));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 16px;
+            font-weight: 600;
+            box-shadow: 0 4px 12px rgba(255,77,109,0.2);
+        }
+
+        .contact-label {
+            font-size: 10px;
+            font-weight: 500;
+            color: var(--ink-light);
+        }
+
+        .add-btn {
+            width: 46px;
+            height: 46px;
+            border-radius: 14px;
+            background: var(--mist);
+            border: 1.5px dashed var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--ink-light);
+            font-size: 20px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .add-btn:hover {
+            background: var(--rose-soft);
+            border-color: var(--rose-mid);
+            color: var(--rose);
+        }
+
+        /* ── BOTTOM NAV ── */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100%;
+            max-width: 480px;
+            background: var(--white);
+            border-top: 1px solid var(--border);
+            padding: 10px 8px 14px;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            z-index: 100;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            padding: 6px 0;
+            cursor: pointer;
+            border-radius: 12px;
+            transition: background 0.2s;
+            position: relative;
+        }
+
+        .nav-item:hover { background: var(--mist); }
+
+        .nav-item.active .nav-icon {
+            background: var(--rose-soft);
+            color: var(--rose);
+        }
+
+        .nav-icon {
+            width: 36px;
+            height: 28px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            transition: all 0.2s;
+        }
+
+        .nav-label {
+            font-size: 10px;
+            font-weight: 500;
+            color: var(--ink-light);
+        }
+
+        .nav-item.active .nav-label { color: var(--rose); }
+
+        /* ── SOS OVERLAY ── */
+        .sos-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(255,77,109,0.97);
+            z-index: 999;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            text-align: center;
+            padding: 30px;
+            backdrop-filter: blur(4px);
+        }
+
+        .sos-overlay.show { display: flex; animation: overlayIn 0.3s ease; }
+
+        @keyframes overlayIn {
+            from { opacity: 0; transform: scale(1.04); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .sos-overlay-icon {
+            font-size: 64px;
+            margin-bottom: 16px;
+            animation: shake 0.5s ease 0.3s both;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: rotate(0deg); }
+            20% { transform: rotate(-10deg); }
+            40% { transform: rotate(10deg); }
+            60% { transform: rotate(-6deg); }
+            80% { transform: rotate(6deg); }
+        }
+
+        .sos-overlay h2 {
+            font-family: 'DM Serif Display', serif;
+            font-size: 34px;
+            margin-bottom: 8px;
+        }
+
+        .sos-overlay-detail {
+            font-size: 14px;
+            opacity: 0.9;
+            margin: 4px 0;
+            font-weight: 300;
+        }
+
+        .sos-overlay-note {
+            margin-top: 12px;
+            font-size: 12px;
+            opacity: 0.7;
+            background: rgba(255,255,255,0.15);
+            padding: 8px 18px;
+            border-radius: 20px;
+        }
+
+        .dismiss-btn {
+            margin-top: 32px;
+            background: white;
+            color: var(--rose-deep);
+            border: none;
+            padding: 14px 36px;
+            border-radius: 50px;
+            font-family: 'Sora', sans-serif;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+            transition: transform 0.2s;
+        }
+
+        .dismiss-btn:hover { transform: scale(1.03); }
+    </style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar">
+    <div class="nav-left">
+        <div class="nav-logo">🛡️</div>
+        <span class="nav-title">SheSafe</span>
+    </div>
+    <div class="nav-right">
+        <div class="battery-pill">
+            <span class="battery-icon">🔋</span>
+            <span id="batteryLevel">--%</span>
+        </div>
+        <div class="user-chip">
+            <div class="user-chip-avatar" id="userInitial">?</div>
+            <span class="user-chip-name" id="userName">Loading</span>
+        </div>
+        <button class="logout-btn" onclick="logout()" title="Logout">↩</button>
+    </div>
+</nav>
+
+<!-- MAIN SCROLL -->
+<div class="scroll-wrap">
+
+    <!-- MAP -->
+    <span class="section-label">Live Location</span>
+    <div class="card">
+        <div class="card-header">
+            <div class="card-title">
+                <div class="card-title-icon">📍</div>
+                Your Position
+            </div>
+            <div class="live-badge">
+                <div class="live-dot"></div>
+                LIVE
+            </div>
+        </div>
+        <div class="map-body">
+            <div class="map-animated-bg">
+                <div class="map-grid"></div>
+                <div class="map-pulse-ring"></div>
+                <div class="map-pin" id="mapPin">📍</div>
+                <div class="map-coords" id="mapCoords">Acquiring GPS...</div>
+            </div>
+        </div>
+        <div class="map-status">
+            <span>📡</span>
+            <span id="locationText">Waiting for location permission...</span>
+        </div>
+    </div>
+
+    <!-- SOS -->
+    <span class="section-label">Emergency</span>
+    <div class="sos-wrap">
+        <div class="sos-bg-glow"></div>
+        <button class="sos-btn" onclick="triggerSOSAlert('button')">SOS</button>
+        <p class="sos-hint">Tap in an emergency — alerts your <strong>Circle</strong> instantly</p>
+    </div>
+
+    <!-- CHAT -->
+    <span class="section-label">Family Chat</span>
+    <div class="card">
+        <div class="card-header">
+            <div class="card-title">
+                <div class="card-title-icon">💬</div>
+                Circle Chat
+            </div>
+            <div class="live-badge">
+                <div class="live-dot"></div>
+                LIVE
+            </div>
+        </div>
+        <div class="chat-messages" id="chatMessages">
+            <div class="chat-empty">No messages yet<br>Say hi to your circle 👋</div>
+        </div>
+        <div class="chat-input-row">
+            <input class="chat-input" id="chatInput"
+                placeholder="Send a message..."
+                onkeypress="if(event.key==='Enter') sendMessage()" />
+            <button class="send-btn" onclick="sendMessage()">➤</button>
+        </div>
+    </div>
+
+    <!-- CIRCLE OF TRUST -->
+    <span class="section-label">Circle of Trust</span>
+    <div class="card">
+        <div class="card-header">
+            <div class="card-title">
+                <div class="card-title-icon">👥</div>
+                Trusted People
+            </div>
+        </div>
+        <div class="circle-body" id="contactsList">
+            <div class="contact-item">
+                <div class="add-btn" onclick="addContact()">+</div>
+                <span class="contact-label">Add</span>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<!-- BOTTOM NAV -->
+<nav class="bottom-nav">
+    <div class="nav-item active">
+        <div class="nav-icon">🏠</div>
+        <span class="nav-label">Home</span>
+    </div>
+    <div class="nav-item">
+        <div class="nav-icon">📍</div>
+        <span class="nav-label">Location</span>
+    </div>
+    <div class="nav-item">
+        <div class="nav-icon">👥</div>
+        <span class="nav-label">Circle</span>
+    </div>
+   <div class="nav-item" onclick="startFakeCall()">
+    <div class="nav-icon">📞</div>
+    <span class="nav-label">Fake Call</span>
+</div>
+</nav>
+
+<!-- SOS OVERLAY -->
+<div class="sos-overlay" id="sosOverlay">
+    <div class="sos-overlay-icon">🚨</div>
+    <h2>SOS Sent!</h2>
+    <p class="sos-overlay-detail" id="sosLocation">📍 Getting location...</p>
+    <p class="sos-overlay-detail" id="sosBattery">🔋 Reading battery...</p>
+    <div class="sos-overlay-note">Your Circle has been alerted</div>
+    <div id="sosEmailInfo" style="display:none; margin-top:10px; background:rgba(255,255,255,0.2); padding:8px 18px; border-radius:20px; font-size:12px;">
+    📧 Notifying contacts...
+    </div>
+    <div id="sosAudioInfo" style="display:none; margin-top:8px; background:rgba(255,255,255,0.2); padding:8px 18px; border-radius:20px; font-size:12px; color:white;">
+    🎙️ Recording audio...
+    </div>
+    <button class="dismiss-btn" onclick="dismissSOS()">I'm Safe Now ✓</button>
+</div>
+
+<script>
+    let currentUser = null;
+    let currentLat = null;
+    let currentLng = null;
+    let chatInterval = null;
+
+    window.onload = async () => {
+        await checkLogin();
+        getBattery();
+        getLocation();
+        loadMessages();
+        loadContacts();
+        chatInterval = setInterval(loadMessages, 3000);
+    };
+
+    async function checkLogin() {
+        const res = await fetch('/api/auth/check');
+        const data = await res.json();
+        if (!data.loggedIn) { window.location.href = 'index.html'; return; }
+        currentUser = data.user;
+        const first = data.user.full_name.split(' ')[0];
+        document.getElementById('userName').textContent = first;
+        document.getElementById('userInitial').textContent = first.charAt(0).toUpperCase();
+    }
+
+    async function getBattery() {
+        try {
+            const b = await navigator.getBattery();
+            const update = () => {
+                const lvl = Math.round(b.level * 100);
+                document.getElementById('batteryLevel').textContent = lvl + '%';
+            };
+            update();
+            b.addEventListener('levelchange', update);
+        } catch { document.getElementById('batteryLevel').textContent = 'N/A'; }
+    }
+
+    function getLocation() {
+        if (!navigator.geolocation) {
+            document.getElementById('locationText').textContent = 'Geolocation not supported';
+            return;
+        }
+        navigator.geolocation.watchPosition(pos => {
+            currentLat = pos.coords.latitude.toFixed(6);
+            currentLng = pos.coords.longitude.toFixed(6);
+            document.getElementById('locationText').textContent = `${currentLat}, ${currentLng} · Accuracy: ${Math.round(pos.coords.accuracy)}m`;
+            document.getElementById('mapCoords').textContent = `${currentLat}, ${currentLng}`;
+        }, () => {
+            document.getElementById('locationText').textContent = 'Location access denied';
+            document.getElementById('mapCoords').textContent = 'Location unavailable';
+        });
+    }
+
+    async function triggerSOS() {
+        const battery = document.getElementById('batteryLevel').textContent;
+        const location = currentLat ? `${currentLat}, ${currentLng}` : 'Unknown';
+        const mapLink = currentLat ? `https://maps.google.com/?q=${currentLat},${currentLng}` : '';
+        const message = `🚨 SOS ALERT! I need help! Battery: ${battery}. Location: ${mapLink || location}`;
+
+        document.getElementById('sosOverlay').classList.add('show');
+        document.getElementById('sosLocation').textContent = '📍 ' + location;
+        document.getElementById('sosBattery').textContent = '🔋 Battery: ' + battery;
+
+        try {
+            await fetch('/api/chat/send', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ message, is_sos: 1 })
+            });
+            loadMessages();
+        } catch (e) { console.log(e); }
+    }
+
+    function dismissSOS() {
+        document.getElementById('sosOverlay').classList.remove('show');
+    }
+
+    async function loadMessages() {
+        try {
+            const res = await fetch('/api/chat/messages');
+            const data = await res.json();
+            if (!data.success) return;
+            const box = document.getElementById('chatMessages');
+            if (!data.messages.length) {
+                box.innerHTML = '<div class="chat-empty">No messages yet<br>Say hi to your circle 👋</div>';
+                return;
+            }
+            box.innerHTML = data.messages.map(msg => {
+                const isMe = currentUser && msg.user_id === currentUser.id;
+                const time = new Date(msg.sent_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                if (msg.is_sos) return `
+                    <div class="msg-row sos-row">
+                        <div class="bubble sos">${msg.message}<div class="bubble-time">${time}</div></div>
+                    </div>`;
+                return `
+                    <div class="msg-row ${isMe ? 'me' : 'them'}">
+                        ${!isMe ? `<div class="msg-sender">${msg.sender_name}</div>` : ''}
+                        <div class="bubble ${isMe ? 'mine' : 'theirs'}">${msg.message}<div class="bubble-time">${time}</div></div>
+                    </div>`;
+            }).join('');
+            box.scrollTop = box.scrollHeight;
+        } catch (e) { console.log(e); }
+    }
+
+    async function sendMessage() {
+    const input = document.getElementById('chatInput');
+    const message = input.value.trim();
+    if (!message) return;
+    input.value = '';
+
+    try {
+        const res = await fetch('/api/chat/send', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ message, is_sos: 0 })
+        });
+        const data = await res.json();
+        loadMessages();
+
+        // Check AI analysis result
+        if (data.ai && data.ai.is_distress &&
+            (data.ai.confidence === 'high' || data.ai.confidence === 'medium')) {
+            console.log('🤖 Distress detected:', data.ai);
+            showDistressWarning(data.ai);
+        }
+    } catch (e) {
+        console.log('Send failed', e);
+    }
+}
+
+    async function loadContacts() {
+        try {
+            const res = await fetch('/api/contacts/list');
+            const data = await res.json();
+            if (!data.success || !data.contacts.length) return;
+            const list = document.getElementById('contactsList');
+            list.innerHTML = data.contacts.map(c => `
+                <div class="contact-item">
+                    <div class="contact-avatar">${c.contact_name.charAt(0).toUpperCase()}</div>
+                    <span class="contact-label">${c.contact_name.split(' ')[0]}</span>
+                </div>`).join('') + `
+                <div class="contact-item">
+                    <div class="add-btn" onclick="addContact()">+</div>
+                    <span class="contact-label">Add</span>
+                </div>`;
+        } catch (e) { console.log(e); }
+    }
+
+    function addContact() { window.location.href = 'contacts.html'; }
+
+    async function logout() {
+        await fetch('/api/auth/logout');
+        clearInterval(chatInterval);
+        window.location.href = 'index.html';
+    }
+</script>
+<!-- FAKE CALL SCREEN -->
+<div id="fakeCallScreen" style="display:flex; position:fixed; inset:0; background:#1a1a2e; z-index:998; flex-direction:column; align-items:center; justify-content:space-between; padding:60px 30px 50px; color:white; text-align:center;">
+
+    <!-- RINGING STATE -->
+    <div id="fakeCallRinging" style="display:flex; flex-direction:column; align-items:center; gap:16px; width:100%;">
+        <p style="font-size:13px; opacity:0.6; letter-spacing:1px;">INCOMING CALL</p>
+        <div style="width:90px; height:90px; border-radius:50%; background:linear-gradient(135deg,#ff4d6d,#c9184a); display:flex; align-items:center; justify-content:center; font-size:36px; box-shadow:0 0 0 12px rgba(255,77,109,0.15), 0 0 0 24px rgba(255,77,109,0.08);">👩</div>
+        <h2 style="font-size:26px; font-weight:700;">Mom</h2>
+        <p style="font-size:13px; opacity:0.6;">Mobile</p>
+        <div style="display:flex; gap:50px; margin-top:40px;">
+    <div style="display:flex; flex-direction:column; align-items:center; gap:10px;">
+        <button id="declineBtn" style="width:65px; height:65px; border-radius:50%; background:#e74c3c; border:none; cursor:pointer; color:white; font-size:24px;">✕</button>
+        <span style="font-size:12px; opacity:0.7;">Decline</span>
+    </div>
+    <div style="display:flex; flex-direction:column; align-items:center; gap:10px;">
+        <button id="answerBtn" style="width:65px; height:65px; border-radius:50%; background:#2ecc71; border:none; cursor:pointer; color:white; font-size:24px;">✓</button>
+        <span style="font-size:12px; opacity:0.7;">Answer</span>
+    </div>
+</div>
+    </div>
+
+    <!-- IN CALL STATE -->
+  <div id="fakeCallScreen" style="position:fixed; inset:0; background:#1a1a2e; z-index:998; flex-direction:column; align-items:center; justify-content:space-between; padding:60px 30px 50px; color:white; text-align:center;">
+    <p style="font-size:13px; opacity:0.6; letter-spacing:1px;">ON CALL</p>
+    <div style="width:90px; height:90px; border-radius:50%; background:linear-gradient(135deg,#ff4d6d,#c9184a); display:flex; align-items:center; justify-content:center; font-size:36px;">👩</div>
+    <h2 style="font-size:26px; font-weight:700;">Mom</h2>
+    <p id="callTimer" style="font-size:14px; opacity:0.6;">00:00</p>
+    <!-- AI Status -->
+    <div id="callStatus" style="font-size:12px; opacity:0.7; background:rgba(255,255,255,0.1); padding:10px 16px; border-radius:20px; max-width:280px; text-align:center; min-height:40px;">
+        Mom is speaking...
+    </div>
+    <p style="font-size:11px; opacity:0.5;">Say "<strong>weather is hot</strong>" to trigger SOS silently</p>
+    <button onclick="endFakeCall()" style="margin-top:20px; width:65px; height:65px; border-radius:50%; background:#e74c3c; border:none; font-size:28px; cursor:pointer;">📵</button>
+    <span style="font-size:12px; opacity:0.7;">End Call</span>
+</div>
+
+</div>
+
+<!-- Load SOS features -->
+<script src="/js/sos.js"></script>
+<script src="/js/chat.js"></script>
+<script>
+    // Attach fake call button events after page loads
+    document.addEventListener('DOMContentLoaded', () => {
+        const answerBtn = document.getElementById('answerBtn');
+        const declineBtn = document.getElementById('declineBtn');
+        if (answerBtn) answerBtn.addEventListener('click', answerFakeCall);
+        if (declineBtn) declineBtn.addEventListener('click', endFakeCall);
+    });
+</script>
+</body>
+</html>
