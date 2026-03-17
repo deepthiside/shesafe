@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const db = require('../config/db');
-const transporter = require('../config/mailer');
+const { sendEmail } = require('../config/mailer');
 const sosEmailTemplate = require('../config/emailTemplate');
 const multer = require('multer');
 const path = require('path');
@@ -59,23 +59,20 @@ router.post('/trigger', async (req, res) => {
 
             // Send email to each contact
             const emailPromises = contacts.map(contact => {
-                const mailOptions = {
-                    from: `"SheSafe 🛡️" <${process.env.EMAIL_USER}>`,
-                    to: contact.contact_email,
-                    subject: `🚨 SOS ALERT - ${full_name} needs help!`,
-                    html: sosEmailTemplate(
-                        full_name,
-                        location || 'Unknown',
-                        battery || 'Unknown',
-                        mapLink || '',
-                        triggeredBy || 'SOS Button'
-                    )
-                };
-
-                return transporter.sendMail(mailOptions)
-                    .then(() => console.log(`✅ SOS email sent to ${contact.contact_name}`))
-                    .catch(err => console.log(`❌ Failed to send to ${contact.contact_email}:`, err.message));
-            });
+    return sendEmail({
+        to: contact.contact_email,
+        subject: `🚨 SOS ALERT - ${full_name} needs help!`,
+        html: sosEmailTemplate(
+            full_name,
+            location || 'Unknown',
+            battery || 'Unknown',
+            mapLink || '',
+            triggeredBy || 'SOS Button'
+        )
+    })
+    .then(() => console.log(`✅ SOS email sent to ${contact.contact_name}`))
+    .catch(err => console.log(`❌ Failed to send to ${contact.contact_email}:`, err.message));
+});
 
             await Promise.all(emailPromises);
 
@@ -121,41 +118,33 @@ router.post('/upload-audio', upload.single('audio'), (req, res) => {
             if (err) return res.json({ success: false });
 
             const audioEmailPromises = contacts.map(contact => {
-                const mailOptions = {
-                    from: `"SheSafe 🛡️" <${process.env.EMAIL_USER}>`,
-                    to: contact.contact_email,
-                    subject: `🎙️ SOS Audio Recording - ${full_name}`,
-                    html: `
-                        <div style="font-family:sans-serif; max-width:500px; margin:0 auto;">
-                            <div style="background:linear-gradient(135deg,#ff4d6d,#c9184a); padding:24px; text-align:center; border-radius:16px 16px 0 0;">
-                                <div style="font-size:40px;">🎙️</div>
-                                <h2 style="color:white; margin:8px 0 0;">Audio Recording Captured</h2>
-                            </div>
-                            <div style="background:white; padding:24px; border-radius:0 0 16px 16px; border:1px solid #eee;">
-                                <p style="color:#1a1a2e; font-size:14px;">
-                                    <strong>${full_name}</strong> triggered an SOS alert and an audio recording was captured automatically.
-                                </p>
-                                <div style="background:#f7f8fc; border-radius:12px; padding:16px; margin:16px 0; font-size:13px; color:#4a4a6a;">
-                                    📁 Recording file: <strong>${audioName}</strong><br>
-                                    ⏱️ Duration: 15 seconds<br>
-                                    🕐 Time: ${new Date().toLocaleString()}
-                                </div>
-                                <p style="color:#4a4a6a; font-size:12px;">
-                                    The audio recording has been saved securely on the SheSafe server.
-                                </p>
-                            </div>
-                        </div>
-                    `,
-                    attachments: [{
-                        filename: audioName,
-                        path: audioPath
-                    }]
-                };
-
-                return transporter.sendMail(mailOptions)
-                    .then(() => console.log(`✅ Audio email sent to ${contact.contact_name}`))
-                    .catch(err => console.log(`❌ Audio email failed:`, err.message));
-            });
+    return sendEmail({
+        to: contact.contact_email,
+        subject: `🎙️ SOS Audio Recording - ${full_name}`,
+        html: `
+            <div style="font-family:sans-serif; max-width:500px; margin:0 auto;">
+                <div style="background:linear-gradient(135deg,#ff4d6d,#c9184a); padding:24px; text-align:center; border-radius:16px 16px 0 0;">
+                    <div style="font-size:40px;">🎙️</div>
+                    <h2 style="color:white; margin:8px 0 0;">Audio Recording Captured</h2>
+                </div>
+                <div style="background:white; padding:24px; border-radius:0 0 16px 16px; border:1px solid #eee;">
+                    <p style="color:#1a1a2e; font-size:14px;">
+                        <strong>${full_name}</strong> triggered an SOS alert and an audio recording was captured.
+                    </p>
+                    <div style="background:#f7f8fc; border-radius:12px; padding:16px; margin:16px 0; font-size:13px; color:#4a4a6a;">
+                        📁 Recording: <strong>${audioName}</strong><br>
+                        ⏱️ Duration: 15 seconds<br>
+                        🕐 Time: ${new Date().toLocaleString()}<br>
+                        📍 Location: <strong>${req.body.location || 'Unavailable'}</strong><br>
+                        🔋 Battery: <strong>${req.body.battery || 'Unavailable'}</strong>
+                    </div>
+                </div>
+            </div>
+        `
+    })
+    .then(() => console.log(`✅ Audio email sent to ${contact.contact_name}`))
+    .catch(err => console.log(`❌ Audio email failed:`, err.message));
+});
 
             await Promise.all(audioEmailPromises);
 

@@ -1,25 +1,30 @@
-const nodemailer = require('nodemailer');
+const axios = require('axios');
 require('dotenv').config();
 
-const transporter = nodemailer.createTransport({
-    host: 'smtp-relay.brevo.com',
-    port: 465,
-    secure: true,
-    auth: {
-        user: process.env.BREVO_LOGIN,
-        pass: process.env.BREVO_PASSWORD
-    },
-    tls: {
-        rejectUnauthorized: false
+// Send email using Brevo HTTP API (works on Railway!)
+async function sendEmail({ to, subject, html }) {
+    try {
+        const response = await axios.post('https://api.brevo.com/v3/smtp/email', {
+            sender: {
+                name: 'SheSafe 🛡️',
+                email: process.env.EMAIL_USER
+            },
+            to: [{ email: to }],
+            subject: subject,
+            htmlContent: html
+        }, {
+            headers: {
+                'api-key': process.env.BREVO_API_KEY,
+                'Content-Type': 'application/json'
+            }
+        });
+        return response.data;
+    } catch (err) {
+        console.log('❌ Email send failed:', err.response?.data || err.message);
+        throw err;
     }
-});
+}
 
-transporter.verify((err, success) => {
-    if (err) {
-        console.log('❌ Email setup failed:', err.message);
-    } else {
-        console.log('✅ Email system ready!');
-    }
-});
+console.log('✅ Email system ready! (Brevo HTTP API)');
 
-module.exports = transporter;
+module.exports = { sendEmail };
