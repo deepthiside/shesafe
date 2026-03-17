@@ -1,16 +1,19 @@
 const nodemailer = require('nodemailer');
 require('dotenv').config();
 
-// Create email transporter using Gmail
 const transporter = nodemailer.createTransport({
-    service: 'gmail',
+    host: 'smtp.gmail.com',
+    port: 587,
+    secure: false,
     auth: {
         user: process.env.EMAIL_USER,
         pass: process.env.EMAIL_PASS
+    },
+    tls: {
+        rejectUnauthorized: false
     }
 });
 
-// Verify connection
 transporter.verify((err, success) => {
     if (err) {
         console.log('❌ Email setup failed:', err.message);
