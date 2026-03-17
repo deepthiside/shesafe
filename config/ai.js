@@ -7,7 +7,7 @@ const { GoogleGenerativeAI } = require('@google/generative-ai');
 require('dotenv').config();
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash-8b' });
+const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash-8b' });   
 
 // ── AI DISTRESS DETECTION ─────────────────────
 async function analyzeMessage(message) {
@@ -148,9 +148,34 @@ Mom's response:`;
 
     } catch (err) {
         console.log('❌ Fake call AI error:', err.message);
+        // Still check for danger keywords even if Gemini fails!
+        const dangerKeywords = [
+            'help', 'scared', 'danger', 'uncomfortable',
+            'following', 'unsafe', 'weather is hot',
+            'code red', 'hurry', 'come fast', 'please come',
+            'in danger', 'not safe', 'someone following'
+        ];
+        const hasDanger = dangerKeywords.some(k =>
+            userSpeech.toLowerCase().includes(k)
+        );
+
+        const dangerResponses = [
+            "Beta I'm coming right now! Send me your location!",
+            "Oh no! Stay calm, I'm tracking you right now!",
+            "Don't hang up! I'm calling for help right now!"
+        ];
+        const normalResponses = [
+            "Hello? Are you okay beta? Come home soon okay?",
+            "Okay beta, be careful. Call me when you reach.",
+            "Alright, don't be late okay? I'm waiting for you."
+        ];
+
+        const responses = hasDanger ? dangerResponses : normalResponses;
+        const response = responses[Math.floor(Math.random() * responses.length)];
+
         return {
-            response: "Hello? Are you okay beta? Come home soon okay?",
-            dangerDetected: false
+            response,
+            dangerDetected: hasDanger
         };
     }
 }

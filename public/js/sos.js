@@ -478,11 +478,17 @@ function startFakeCallListening() {
                 // If danger detected → trigger SOS silently
                 if (data.dangerDetected) {
                     console.log('🚨 Danger detected in fake call!');
+                    // Speak alarmed response first then trigger SOS
+                    speakText(data.response);
                     setTimeout(() => {
                         endFakeCall();
-                        triggerSOSAlert('fakecall');
-                    }, 2000);
+                        // Small delay to let speech finish
+                        setTimeout(() => {
+                            triggerSOSAlert('fakecall');
+                        }, 1000);
+                    }, 3000);
                 } else {
+                    speakText(data.response);
                     // Keep listening after Mom responds
                     setTimeout(() => {
                         if (fakeCallActive) startFakeCallListening();
@@ -491,10 +497,22 @@ function startFakeCallListening() {
             }
         } catch (e) {
             console.log('Fake call AI error:', e);
-            speakText("Hello? Are you there beta?");
-            setTimeout(() => {
-                if (fakeCallActive) startFakeCallListening();
-            }, 3000);
+            // Still check danger keywords even if AI fails
+            const dangerWords = ['help', 'scared', 'danger', 'following', 'unsafe', 'code red', 'weather is hot'];
+            const hasDanger = dangerWords.some(k => userSpeech && userSpeech.toLowerCase().includes(k));
+
+            if (hasDanger) {
+                speakText("Beta I'm coming right now! Stay calm!");
+                setTimeout(() => {
+                    endFakeCall();
+                    setTimeout(() => triggerSOSAlert('fakecall'), 1000);
+                }, 3000);
+            } else {
+                speakText("Hello? Are you there beta?");
+                setTimeout(() => {
+                    if (fakeCallActive) startFakeCallListening();
+                }, 3000);
+            }
         }
     };
 

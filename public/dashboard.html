@@ -1,8 +1,19 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="manifest" href="/manifest.json" />
+    <meta name="theme-color" content="#ff4d6d" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content="SheSafe" />
+        <link rel="stylesheet" href="/css/style.css" />
+        <!-- Leaflet Maps CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <!-- Leaflet Maps JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+        <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <title>SheSafe</title>
     <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&family=DM+Serif+Display&display=swap" rel="stylesheet">
     <style>
@@ -237,10 +248,11 @@
 
         /* ── MAP ── */
         .map-body {
-            height: 200px;
-            background: var(--mist);
+            height: 220px;
+            width: 100%;
             position: relative;
             overflow: hidden;
+            z-index: 1;
         }
 
         .map-animated-bg {
@@ -759,7 +771,7 @@
 <!-- MAIN SCROLL -->
 <div class="scroll-wrap">
 
-    <!-- MAP -->
+ <!-- MAP -->
     <span class="section-label">Live Location</span>
     <div class="card">
         <div class="card-header">
@@ -773,12 +785,7 @@
             </div>
         </div>
         <div class="map-body">
-            <div class="map-animated-bg">
-                <div class="map-grid"></div>
-                <div class="map-pulse-ring"></div>
-                <div class="map-pin" id="mapPin">📍</div>
-                <div class="map-coords" id="mapCoords">Acquiring GPS...</div>
-            </div>
+            <div id="map" style="height:220px; width:100%; z-index:1;"></div>
         </div>
         <div class="map-status">
             <span>📡</span>
@@ -910,21 +917,87 @@
         } catch { document.getElementById('batteryLevel').textContent = 'N/A'; }
     }
 
-    function getLocation() {
-        if (!navigator.geolocation) {
-            document.getElementById('locationText').textContent = 'Geolocation not supported';
-            return;
-        }
-        navigator.geolocation.watchPosition(pos => {
+  let leafletMap = null;
+let leafletMarker = null;
+
+function getLocation() {
+    if (!navigator.geolocation) {
+        document.getElementById('locationText').textContent = 'Geolocation not supported';
+        return;
+    }
+
+    navigator.geolocation.watchPosition(
+        (pos) => {
             currentLat = pos.coords.latitude.toFixed(6);
             currentLng = pos.coords.longitude.toFixed(6);
-            document.getElementById('locationText').textContent = `${currentLat}, ${currentLng} · Accuracy: ${Math.round(pos.coords.accuracy)}m`;
-            document.getElementById('mapCoords').textContent = `${currentLat}, ${currentLng}`;
-        }, () => {
+
+            document.getElementById('locationText').textContent =
+                `${currentLat}, ${currentLng} · Accuracy: ${Math.round(pos.coords.accuracy)}m`;
+
+            // Initialize map if not already done
+            if (!leafletMap) {
+                leafletMap = L.map('map').setView([currentLat, currentLng], 15);
+
+                // OpenStreetMap tiles - 100% free!
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    attribution: '© OpenStreetMap contributors'
+                }).addTo(leafletMap);
+
+                // Custom pink marker for SheSafe
+                const pinkIcon = L.divIcon({
+                    html: `<div style="
+                        width: 36px;
+                        height: 36px;
+                        background: linear-gradient(135deg, #ff4d6d, #c9184a);
+                        border-radius: 50% 50% 50% 0;
+                        transform: rotate(-45deg);
+                        border: 3px solid white;
+                        box-shadow: 0 4px 12px rgba(255,77,109,0.5);
+                    "></div>`,
+                    iconSize: [36, 36],
+                    iconAnchor: [18, 36],
+                    className: ''
+                });
+
+                // Add marker
+                leafletMarker = L.marker([currentLat, currentLng], { icon: pinkIcon })
+                    .addTo(leafletMap)
+                    .bindPopup(`
+                        <div style="font-family:sans-serif; text-align:center; padding:4px;">
+                            <strong>🛡️ You are here</strong><br>
+                            <small style="color:#666">${currentLat}, ${currentLng}</small>
+                        </div>
+                    `)
+                    .openPopup();
+
+            } else {
+                // Update marker position
+                leafletMarker.setLatLng([currentLat, currentLng]);
+                leafletMap.setView([currentLat, currentLng], 15);
+                leafletMarker.getPopup().setContent(`
+                    <div style="font-family:sans-serif; text-align:center; padding:4px;">
+                        <strong>🛡️ You are here</strong><br>
+                        <small style="color:#666">${currentLat}, ${currentLng}</small>
+                    </div>
+                `);
+            }
+        },
+        (err) => {
             document.getElementById('locationText').textContent = 'Location access denied';
-            document.getElementById('mapCoords').textContent = 'Location unavailable';
-        });
-    }
+            document.getElementById('map').innerHTML = `
+                <div style="height:220px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:8px; color:#999; font-size:13px;">
+                    <span style="font-size:32px;">📍</span>
+                    <span>Location access denied</span>
+                    <span style="font-size:11px;">Please allow location in browser settings</span>
+                </div>`;
+        },
+        {
+            enableHighAccuracy: true,
+            maximumAge: 10000,
+            timeout: 5000
+        }
+    );
+}
 
     async function triggerSOS() {
         const battery = document.getElementById('batteryLevel').textContent;

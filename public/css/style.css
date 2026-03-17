@@ -1,0 +1,191 @@
+/* ============================================
+   SheSafe - Global Responsive Styles
+   ============================================ */
+
+/* Make everything responsive */
+* {
+    -webkit-tap-highlight-color: transparent;
+    -webkit-text-size-adjust: 100%;
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-thumb { background: #ddd; border-radius: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+
+/* Mobile first base */
+html, body {
+    overflow-x: hidden;
+    width: 100%;
+}
+
+/* ── LOGIN & REGISTER PAGES ── */
+.auth-body {
+    min-height: 100vh;
+    min-height: -webkit-fill-available;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+
+.auth-card {
+    width: 100%;
+    max-width: 420px;
+    margin: 0 auto;
+}
+
+/* ── DASHBOARD RESPONSIVE ── */
+
+/* Mobile phones */
+@media (max-width: 480px) {
+    .navbar {
+        padding: 0 14px !important;
+        height: 56px !important;
+    }
+
+    .nav-title {
+        font-size: 17px !important;
+    }
+
+    .user-chip-name {
+        display: none !important;
+    }
+
+    .scroll-wrap {
+        padding: 12px 12px 90px !important;
+    }
+
+    .sos-btn {
+        width: 120px !important;
+        height: 120px !important;
+        font-size: 16px !important;
+    }
+
+    .chat-messages {
+        height: 180px !important;
+    }
+
+    .bottom-nav {
+        padding: 8px 4px 16px !important;
+    }
+
+    .nav-label {
+        font-size: 9px !important;
+    }
+
+    .card-header {
+        padding: 12px 14px !important;
+    }
+
+    .map-body {
+        height: 180px !important;
+    }
+
+    #map {
+        height: 180px !important;
+    }
+}
+
+/* Small phones */
+@media (max-width: 360px) {
+    .sos-btn {
+        width: 110px !important;
+        height: 110px !important;
+        font-size: 15px !important;
+    }
+
+    .nav-logo {
+        width: 28px !important;
+        height: 28px !important;
+    }
+
+    .battery-pill {
+        display: none !important;
+    }
+}
+
+/* Tablets */
+@media (min-width: 481px) and (max-width: 768px) {
+    .scroll-wrap {
+        max-width: 480px !important;
+        margin: 0 auto !important;
+    }
+}
+
+/* Desktop - center everything */
+@media (min-width: 769px) {
+    .scroll-wrap {
+        max-width: 480px !important;
+        margin: 0 auto !important;
+    }
+
+    .bottom-nav {
+        max-width: 480px !important;
+        left: 50% !important;
+        transform: translateX(-50%) !important;
+        border-radius: 0 !important;
+    }
+
+    .navbar {
+        max-width: 100% !important;
+    }
+}
+
+/* ── TOUCH IMPROVEMENTS ── */
+button {
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+}
+
+input {
+    font-size: 16px !important; /* Prevents zoom on iOS */
+}
+
+/* ── FAKE CALL RESPONSIVE ── */
+#fakeCallScreen {
+    padding: 40px 20px 40px !important;
+}
+
+@media (max-width: 360px) {
+    #fakeCallScreen h2 {
+        font-size: 22px !important;
+    }
+}
+
+/* ── SOS OVERLAY RESPONSIVE ── */
+.sos-overlay {
+    padding: 20px !important;
+}
+
+.sos-overlay h2 {
+    font-size: 28px !important;
+}
+
+/* ── CONTACTS PAGE RESPONSIVE ── */
+@media (max-width: 480px) {
+    .container {
+        padding: 14px 12px !important;
+    }
+}
+
+/* ── ANIMATIONS ── */
+@keyframes slideUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+/* PWA fullscreen support */
+@media (display-mode: standalone) {
+    .navbar {
+        padding-top: env(safe-area-inset-top) !important;
+    }
+    .bottom-nav {
+        padding-bottom: calc(12px + env(safe-area-inset-bottom)) !important;
+    }
+}
