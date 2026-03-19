@@ -30,38 +30,55 @@ let sosTriggered = false; // prevents multiple triggers at once
 // Uses DeviceMotion API to detect phone shake
 // If acceleration > 25 in any direction = SHAKE!
 
+// ── SHAKE TO SOS ──────────────────────────────
 let lastShakeTime = 0;
 
-window.addEventListener('devicemotion', (event) => {
-    const acc = event.accelerationIncludingGravity;
-    if (!acc) return;
-
-    // Get total movement force
-    const totalForce = Math.abs(acc.x) + Math.abs(acc.y) + Math.abs(acc.z);
-
-    const now = Date.now();
-
-    // Only trigger if: force is high enough AND 3 seconds have passed since last trigger
-    if (totalForce > 25 && (now - lastShakeTime) > 3000) {
-        lastShakeTime = now;
-        console.log('📳 Shake detected! Force:', totalForce);
-        triggerSOSAlert('shake');
-    }
-});
-
-// On iOS we need to ask permission first for DeviceMotion
-function requestMotionPermission() {
+function initShake() {
+    // iOS 13+ requires permission
     if (typeof DeviceMotionEvent !== 'undefined' &&
         typeof DeviceMotionEvent.requestPermission === 'function') {
-        DeviceMotionEvent.requestPermission()
-            .then(response => {
-                if (response === 'granted') {
-                    console.log('✅ Motion permission granted');
-                }
-            })
-            .catch(console.error);
+        // iOS device - need to request permission
+        console.log('📳 iOS detected - will request motion permission on user interaction');
+        // We request permission when user taps anywhere first time
+        document.addEventListener('click', requestiOSMotionPermission, { once: true });
+    } else {
+        // Android or desktop - just start listening
+        startShakeListener();
     }
 }
+
+function requestiOSMotionPermission() {
+    DeviceMotionEvent.requestPermission()
+        .then(response => {
+            if (response === 'granted') {
+                console.log('✅ iOS motion permission granted');
+                startShakeListener();
+            } else {
+                console.log('❌ iOS motion permission denied');
+            }
+        })
+        .catch(console.error);
+}
+
+function startShakeListener() {
+    window.addEventListener('devicemotion', (event) => {
+        const acc = event.accelerationIncludingGravity;
+        if (!acc) return;
+
+        const totalForce = Math.abs(acc.x) + Math.abs(acc.y) + Math.abs(acc.z);
+        const now = Date.now();
+
+        if (totalForce > 25 && (now - lastShakeTime) > 3000) {
+            lastShakeTime = now;
+            console.log('📳 Shake detected! Force:', totalForce);
+            triggerSOSAlert('shake');
+        }
+    });
+    console.log('📳 Shake listener active');
+}
+
+// Initialize shake on page load
+initShake();
 
 // ── 2. VOICE TRIGGER ─────────────────────────
 // Uses Web Speech API to listen for codeword
@@ -358,7 +375,15 @@ async function startAudioRecording() {
     try {
         // Ask for microphone permission
         const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-        const mediaRecorder = new MediaRecorder(stream);
+        // Detect supported format for this device
+        const mimeType = MediaRecorder.isTypeSupported('audio/mp4')
+        ? 'audio/mp4'
+        : MediaRecorder.isTypeSupported('audio/webm')
+        ? 'audio/webm'
+        : 'audio/ogg';
+
+const mediaRecorder = new MediaRecorder(stream, { mimeType });
+console.log('🎙️ Recording format:', mimeType);
         const audioChunks = [];
 
         // Collect audio data
@@ -375,12 +400,12 @@ async function startAudioRecording() {
             // Stop all microphone tracks
             stream.getTracks().forEach(track => track.stop());
 
-            // Create audio blob
-            const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+            const audioBlob = new Blob(audioChunks, { type: mimeType });
+            const fileExtension = mimeType.includes('mp4') ? 'mp4' : mimeType.includes('webm') ? 'webm' : 'ogg';
 
             // Upload to server
             const formData = new FormData();
-            formData.append('audio', audioBlob, 'sos_recording.webm');
+            formData.append('audio', audioBlob, `sos_recording.${fileExtension}`);
 
             try {
                 const res = await fetch('/api/sos/upload-audio', {

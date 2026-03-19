@@ -16,10 +16,10 @@ const storage = multer.diskStorage({
         cb(null, dir);
     },
     filename: (req, file, cb) => {
-        // Save as: recording_userID_timestamp.webm
-        const fileName = `recording_${req.session.user.id}_${Date.now()}.webm`;
-        cb(null, fileName);
-    }
+    const ext = file.originalname.split('.').pop() || 'webm';
+    const fileName = `recording_${req.session.user.id}_${Date.now()}.${ext}`;
+    cb(null, fileName);
+}
 });
 
 const upload = multer({ storage });

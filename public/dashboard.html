@@ -799,6 +799,11 @@
         <div class="sos-bg-glow"></div>
         <button class="sos-btn" onclick="triggerSOSAlert('button')">SOS</button>
         <p class="sos-hint">Tap in an emergency — alerts your <strong>Circle</strong> instantly</p>
+        <!-- iOS Motion Permission Button -->
+<button id="iosPermBtn" onclick="requestiOSMotionPermission()" 
+    style="display:none; margin-top:10px; background:none; border:1px solid #ff4d6d; color:#ff4d6d; padding:8px 16px; border-radius:20px; font-size:11px; cursor:pointer; font-family:'Sora',sans-serif;">
+    📳 Enable Shake Detection (iOS)
+</button>
     </div>
 
     <!-- CHAT -->
@@ -1144,6 +1149,11 @@ function getLocation() {
 <script src="/js/sos.js"></script>
 <script src="/js/chat.js"></script>
 <script>
+    // Show iOS permission button only on iPhone/iPad
+if (typeof DeviceMotionEvent !== 'undefined' &&
+    typeof DeviceMotionEvent.requestPermission === 'function') {
+    document.getElementById('iosPermBtn').style.display = 'block';
+}
     // Attach fake call button events after page loads
     document.addEventListener('DOMContentLoaded', () => {
         const answerBtn = document.getElementById('answerBtn');
