@@ -208,7 +208,7 @@ async function triggerSOSAlert(source = 'button') {
 
     // Show overlay
     // Start audio recording silently
-    startAudioRecording();
+    startAudioRecording(locationText, battery, mapLink);
 
     // Show overlay
     showSOSOverlay(locationText, battery, source);
@@ -371,41 +371,51 @@ function stopRingtone() {
 // Records 15 seconds of audio when SOS triggers
 // Sends recording to server + emails to contacts
 
-async function startAudioRecording() {
+async function startAudioRecording(locationText, batteryLevel, mapLink) {
     try {
-        // Ask for microphone permission
         const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-        // Detect supported format for this device
-        const mimeType = MediaRecorder.isTypeSupported('audio/mp4')
-        ? 'audio/mp4'
-        : MediaRecorder.isTypeSupported('audio/webm')
-        ? 'audio/webm'
-        : 'audio/ogg';
 
-const mediaRecorder = new MediaRecorder(stream, { mimeType });
-console.log('🎙️ Recording format:', mimeType);
+        // Detect best supported format
+        let mimeType = '';
+        if (MediaRecorder.isTypeSupported('audio/mp4;codecs=mp4a')) {
+            mimeType = 'audio/mp4;codecs=mp4a';
+        } else if (MediaRecorder.isTypeSupported('audio/mp4')) {
+            mimeType = 'audio/mp4';
+        } else if (MediaRecorder.isTypeSupported('audio/webm;codecs=opus')) {
+            mimeType = 'audio/webm;codecs=opus';
+        } else if (MediaRecorder.isTypeSupported('audio/webm')) {
+            mimeType = 'audio/webm';
+        } else if (MediaRecorder.isTypeSupported('audio/ogg')) {
+            mimeType = 'audio/ogg';
+        }
+
+        const options = mimeType ? { mimeType } : {};
+        const mediaRecorder = new MediaRecorder(stream, options);
+        console.log('🎙️ Recording format:', mimeType || 'default');
+
         const audioChunks = [];
 
-        // Collect audio data
         mediaRecorder.ondataavailable = (event) => {
             if (event.data.size > 0) {
                 audioChunks.push(event.data);
             }
         };
 
-        // When recording stops → upload to server
         mediaRecorder.onstop = async () => {
             console.log('🎙️ Recording stopped, uploading...');
-
-            // Stop all microphone tracks
             stream.getTracks().forEach(track => track.stop());
 
-            const audioBlob = new Blob(audioChunks, { type: mimeType });
-            const fileExtension = mimeType.includes('mp4') ? 'mp4' : mimeType.includes('webm') ? 'webm' : 'ogg';
+            const audioBlob = new Blob(audioChunks, { type: mimeType || 'audio/webm' });
+            const fileExtension = mimeType.includes('mp4') ? 'mp4'
+                : mimeType.includes('ogg') ? 'ogg'
+                : 'webm';
 
-            // Upload to server
+            // ✅ Audio file + location all in one formData
             const formData = new FormData();
             formData.append('audio', audioBlob, `sos_recording.${fileExtension}`);
+            formData.append('location', locationText || 'Unavailable');
+            formData.append('battery', batteryLevel || 'Unavailable');
+            formData.append('mapLink', mapLink || '');
 
             try {
                 const res = await fetch('/api/sos/upload-audio', {
@@ -415,7 +425,6 @@ console.log('🎙️ Recording format:', mimeType);
                 const data = await res.json();
                 console.log('✅ Audio uploaded:', data.message);
 
-                // Show in overlay
                 const audioInfo = document.getElementById('sosAudioInfo');
                 if (audioInfo) {
                     audioInfo.textContent = '🎙️ Audio recording captured & sent!';
@@ -426,11 +435,9 @@ console.log('🎙️ Recording format:', mimeType);
             }
         };
 
-        // Start recording
         mediaRecorder.start();
         console.log('🎙️ Recording started...');
 
-        // Auto stop after 15 seconds
         setTimeout(() => {
             if (mediaRecorder.state === 'recording') {
                 mediaRecorder.stop();
