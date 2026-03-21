@@ -151,7 +151,6 @@ router.post('/upload-audio', upload.single('audio'), (req, res) => {
     .catch(err => console.log(`❌ Audio email failed:`, err.message));
 });
 
-            await Promise.all(emailPromises);
 
 // Send WhatsApp to all contacts with phone numbers
 const whatsappPromises = contacts
