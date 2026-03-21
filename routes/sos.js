@@ -7,6 +7,9 @@ const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
 const twilio = require('twilio');
+console.log('Twilio SID:', process.env.TWILIO_ACCOUNT_SID ? 'Found ✅' : 'Missing ❌');
+console.log('Twilio Token:', process.env.TWILIO_AUTH_TOKEN ? 'Found ✅' : 'Missing ❌');
+console.log('Twilio Number:', process.env.TWILIO_WHATSAPP_NUMBER ? 'Found ✅' : 'Missing ❌');
 
 // Twilio client
 const twilioClient = twilio(
