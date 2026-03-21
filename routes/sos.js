@@ -1,3 +1,8 @@
+const twilio = require('twilio');
+const twilioClient = twilio(
+    process.env.TWILIO_ACCOUNT_SID,
+    process.env.TWILIO_AUTH_TOKEN
+);
 const express = require('express');
 const router = express.Router();
 const db = require('../config/db');
@@ -19,7 +24,7 @@ const storage = multer.diskStorage({
     const ext = file.originalname.split('.').pop() || 'webm';
     const fileName = `recording_${req.session.user.id}_${Date.now()}.${ext}`;
     cb(null, fileName);
-}
+}   
 });
 
 const upload = multer({ storage });
@@ -146,13 +151,33 @@ router.post('/upload-audio', upload.single('audio'), (req, res) => {
     .catch(err => console.log(`❌ Audio email failed:`, err.message));
 });
 
-            await Promise.all(audioEmailPromises);
+            await Promise.all(emailPromises);
 
-            res.json({
-                success: true,
-                message: '🎙️ Audio saved and sent to contacts!',
-                filename: audioName
-            });
+// Send WhatsApp to all contacts with phone numbers
+const whatsappPromises = contacts
+    .filter(c => c.contact_phone)
+    .map(contact => {
+        const mapLink = req.body.mapLink || '';
+        const battery = req.body.battery || 'Unknown';
+        const location = req.body.location || 'Unknown';
+
+        const whatsappMsg = `🚨 *SOS ALERT from SheSafe!*\n\n` +
+            `*${full_name}* needs help immediately!\n\n` +
+            `🔋 Battery: ${battery}\n` +
+            `📍 Location: ${mapLink || location}\n\n` +
+            `Please check on them right away!`;
+
+        return sendWhatsApp(contact.contact_phone, whatsappMsg);
+    });
+
+await Promise.all(whatsappPromises);
+
+res.json({
+    success: true,
+    message: `SOS sent! Alerted ${contacts.length} contact(s)`,
+    emailsSent: contacts.length,
+    whatsappSent: whatsappPromises.length
+});
         }
     );
 });
@@ -196,4 +221,17 @@ router.post('/fake-call-reset', (req, res) => {
     resetConversation();
     res.json({ success: true });
 });
+// Send WhatsApp message to a contact
+async function sendWhatsApp(toPhone, message) {
+    try {
+        await twilioClient.messages.create({
+            from: process.env.TWILIO_WHATSAPP_NUMBER,
+            to: `whatsapp:+91${toPhone.replace(/\D/g, '').slice(-10)}`,
+            body: message
+        });
+        console.log(`✅ WhatsApp sent to ${toPhone}`);
+    } catch (err) {
+        console.log(`❌ WhatsApp failed to ${toPhone}:`, err.message);
+    }
+}
 module.exports = router;
