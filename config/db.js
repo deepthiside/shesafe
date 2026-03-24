@@ -1,3 +1,4 @@
+
 const mysql = require('mysql2');
 require('dotenv').config();
 
@@ -7,10 +8,7 @@ const db = mysql.createConnection({
     password: process.env.DB_PASSWORD,
     database: process.env.DB_NAME,
     port: process.env.DB_PORT || 3306,
-    ssl: { rejectUnauthorized: false },
-    connectTimeout: 60000,
-    acquireTimeout: 60000,
-    timeout: 60000
+    ssl: process.env.DB_HOST !== 'localhost' ? { rejectUnauthorized: false } : false
 });
 
 db.connect((err) => {
@@ -20,15 +18,6 @@ db.connect((err) => {
     }
     console.log('✅ MySQL Database connected successfully!');
     createTables();
-});
-
-// Auto reconnect if connection drops
-db.on('error', (err) => {
-    console.log('Database error:', err.message);
-    if (err.code === 'PROTOCOL_CONNECTION_LOST' || err.code === 'ECONNRESET') {
-        console.log('Reconnecting to database...');
-        db.connect();
-    }
 });
 
 // Auto create tables if they don't exist
