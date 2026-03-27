@@ -206,13 +206,8 @@ async function triggerSOSAlert(source = 'button') {
         console.log('SOS trigger failed', e);
     }
 
-    // Show overlay
-    // Start audio recording silently
-    startAudioRecording(locationText, battery, mapLink);
-
-    // Show overlay
+   startAudioRecording(locationText, battery, mapLink);
     showSOSOverlay(locationText, battery, source);
-        showSOSOverlay(locationText, battery, source);
 
     setTimeout(() => { sosTriggered = false; }, 10000);
 }
@@ -375,31 +370,27 @@ async function startAudioRecording(locationText, batteryLevel, mapLink) {
     try {
         const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
 
-        // Detect best supported format
-       // Force mp4 for Android, fallback to webm
-        let mimeType = 'audio/mp4';
-            if (!MediaRecorder.isTypeSupported('audio/mp4')) {
-                mimeType = 'audio/webm';
-            }
-            const mediaRecorder = new MediaRecorder(stream, { mimeType });
-            console.log('🎙️ Recording format:', mimeType);
+        // Android Chrome supports webm, not mp4
+        const mimeType = MediaRecorder.isTypeSupported('audio/webm;codecs=opus')
+            ? 'audio/webm;codecs=opus'
+            : MediaRecorder.isTypeSupported('audio/webm')
+            ? 'audio/webm'
+            : 'audio/mp4';
+
+        const mediaRecorder = new MediaRecorder(stream, { mimeType });
+        console.log('🎙️ Recording format:', mimeType);
 
         const audioChunks = [];
 
         mediaRecorder.ondataavailable = (event) => {
-            if (event.data.size > 0) {
-                audioChunks.push(event.data);
-            }
+            if (event.data.size > 0) audioChunks.push(event.data);
         };
 
         mediaRecorder.onstop = async () => {
-            console.log('🎙️ Recording stopped, uploading...');
             stream.getTracks().forEach(track => track.stop());
-
             const audioBlob = new Blob(audioChunks, { type: mimeType });
             const fileExtension = mimeType.includes('mp4') ? 'mp4' : 'webm';
 
-            // ✅ Audio file + location all in one formData
             const formData = new FormData();
             formData.append('audio', audioBlob, `sos_recording.${fileExtension}`);
             formData.append('location', locationText || 'Unavailable');
@@ -413,7 +404,6 @@ async function startAudioRecording(locationText, batteryLevel, mapLink) {
                 });
                 const data = await res.json();
                 console.log('✅ Audio uploaded:', data.message);
-
                 const audioInfo = document.getElementById('sosAudioInfo');
                 if (audioInfo) {
                     audioInfo.textContent = '🎙️ Audio recording captured & sent!';
@@ -430,7 +420,6 @@ async function startAudioRecording(locationText, batteryLevel, mapLink) {
         setTimeout(() => {
             if (mediaRecorder.state === 'recording') {
                 mediaRecorder.stop();
-                console.log('🎙️ 15 seconds recorded');
             }
         }, 15000);
 
