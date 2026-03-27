@@ -376,22 +376,13 @@ async function startAudioRecording(locationText, batteryLevel, mapLink) {
         const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
 
         // Detect best supported format
-        let mimeType = '';
-        if (MediaRecorder.isTypeSupported('audio/mp4;codecs=mp4a')) {
-            mimeType = 'audio/mp4;codecs=mp4a';
-        } else if (MediaRecorder.isTypeSupported('audio/mp4')) {
-            mimeType = 'audio/mp4';
-        } else if (MediaRecorder.isTypeSupported('audio/webm;codecs=opus')) {
-            mimeType = 'audio/webm;codecs=opus';
-        } else if (MediaRecorder.isTypeSupported('audio/webm')) {
-            mimeType = 'audio/webm';
-        } else if (MediaRecorder.isTypeSupported('audio/ogg')) {
-            mimeType = 'audio/ogg';
-        }
-
-        const options = mimeType ? { mimeType } : {};
-        const mediaRecorder = new MediaRecorder(stream, options);
-        console.log('🎙️ Recording format:', mimeType || 'default');
+       // Force mp4 for Android, fallback to webm
+        let mimeType = 'audio/mp4';
+            if (!MediaRecorder.isTypeSupported('audio/mp4')) {
+                mimeType = 'audio/webm';
+            }
+            const mediaRecorder = new MediaRecorder(stream, { mimeType });
+            console.log('🎙️ Recording format:', mimeType);
 
         const audioChunks = [];
 
@@ -405,10 +396,8 @@ async function startAudioRecording(locationText, batteryLevel, mapLink) {
             console.log('🎙️ Recording stopped, uploading...');
             stream.getTracks().forEach(track => track.stop());
 
-            const audioBlob = new Blob(audioChunks, { type: mimeType || 'audio/webm' });
-            const fileExtension = mimeType.includes('mp4') ? 'mp4'
-                : mimeType.includes('ogg') ? 'ogg'
-                : 'webm';
+            const audioBlob = new Blob(audioChunks, { type: mimeType });
+            const fileExtension = mimeType.includes('mp4') ? 'mp4' : 'webm';
 
             // ✅ Audio file + location all in one formData
             const formData = new FormData();
