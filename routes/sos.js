@@ -180,10 +180,11 @@ router.post('/upload-audio', upload.single('audio'), (req, res) => {
                                     🕐 Time: ${new Date().toLocaleString()}<br>
                                     📍 Location: <strong>${location}</strong><br>
                                     🔋 Battery: <strong>${battery}</strong><br>
-                                    🗺️ Map: <a href="${mapLink || '#'}">${mapLink ? 'Click to view location' : 'Unavailable'}</a>
+                                    🗺️ Map: <a href="${mapLink || '#'}">${mapLink ? 'Click to view location' : 'Unavailable'}</a><br><br>
+                                    <a href="https://shesafe-production.up.railway.app/api/sos/recording/${audioName}" style="display:inline-block; background:#ff4d6d; color:white; padding:12px 24px; border-radius:8px; text-decoration:none; font-weight:bold; font-size:14px;">▶️ Play / Download Recording</a>
                                 </div>
                             </div>
-                        </div>
+                        </div>  
                     `
                 })
                 .then(() => console.log(`✅ Audio email sent to ${contact.contact_name}`))
