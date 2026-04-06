@@ -11,11 +11,6 @@ console.log('Twilio SID:', process.env.TWILIO_ACCOUNT_SID ? 'Found ✅' : 'Missi
 console.log('Twilio Token:', process.env.TWILIO_AUTH_TOKEN ? 'Found ✅' : 'Missing ❌');
 console.log('Twilio Number:', process.env.TWILIO_WHATSAPP_NUMBER ? 'Found ✅' : 'Missing ❌');
 
-// Twilio client
-const twilioClient = twilio(
-    process.env.TWILIO_ACCOUNT_SID,
-    process.env.TWILIO_AUTH_TOKEN
-);
 
 // Setup audio storage
 const storage = multer.diskStorage({
@@ -36,6 +31,10 @@ const upload = multer({ storage });
 // ── SEND WHATSAPP FUNCTION ──────────────────
 async function sendWhatsApp(toPhone, message) {
     try {
+        const twilioClient = twilio(
+            process.env.TWILIO_ACCOUNT_SID,
+            process.env.TWILIO_AUTH_TOKEN
+        );
         await twilioClient.messages.create({
             from: process.env.TWILIO_WHATSAPP_NUMBER,
             to: `whatsapp:+91${toPhone.replace(/\D/g, '').slice(-10)}`,

@@ -2,313 +2,358 @@
 <html lang="en">
 <head>
     <link rel="manifest" href="/manifest.json" />
-    <meta name="theme-color" content="#ff4d6d" />
+    <meta name="theme-color" content="#ff2d6b" />
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
-    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <meta name="apple-mobile-web-app-title" content="SheSafe" />
-        <link rel="stylesheet" href="/css/style.css" />
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-    <title>SheSafe - Login</title>
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+    <title>SheSafe — Login</title>
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+ 
         :root {
-            --pink: #ff4d6d;
-            --dark-pink: #c9184a;
-            --soft: #fff0f3;
-            --white: #ffffff;
-            --gray: #6c757d;
-            --dark: #1a1a2e;
+            --rose: #ff2d6b;
+            --rose-mid: #e0195a;
+            --rose-dark: #c9184a;
+            --violet: #7c3aed;
+            --violet-mid: #6d28d9;
+            --rose-glow: rgba(255,45,107,0.32);
+            --violet-glow: rgba(124,58,237,0.28);
+            --glass: rgba(255,255,255,0.055);
+            --glass-hover: rgba(255,255,255,0.09);
+            --glass-border: rgba(255,255,255,0.13);
+            --glass-border-focus: rgba(255,45,107,0.7);
+            --text: #ffffff;
+            --text-muted: rgba(255,255,255,0.52);
+            --text-hint: rgba(255,255,255,0.3);
+            --input-bg: rgba(255,255,255,0.07);
+            --input-bg-focus: rgba(255,45,107,0.09);
         }
-
-        body {
+ 
+        html, body {
+            height: 100%;
             font-family: 'DM Sans', sans-serif;
-            background: var(--dark);
+            background: #08000f;
+            color: var(--text);
+            overflow-x: hidden;
+        }
+ 
+        /* ── BACKGROUND ── */
+        .bg-scene {
+            position: fixed; inset: 0; z-index: 0; overflow: hidden;
+        }
+        .bg-mesh {
+            position: absolute; inset: 0;
+            background:
+                radial-gradient(ellipse 90% 70% at 15% 5%,  rgba(124,58,237,0.5) 0%, transparent 55%),
+                radial-gradient(ellipse 70% 60% at 85% 85%, rgba(255,45,107,0.45) 0%, transparent 55%),
+                radial-gradient(ellipse 55% 45% at 70% 15%, rgba(255,100,160,0.22) 0%, transparent 50%),
+                radial-gradient(ellipse 40% 35% at 10% 80%, rgba(180,40,100,0.2) 0%, transparent 50%),
+                #08000f;
+        }
+        .bg-grid {
+            position: absolute; inset: 0;
+            background-image:
+                linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px);
+            background-size: 48px 48px;
+        }
+        .bg-noise {
+            position: absolute; inset: 0; opacity: 0.04;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+        }
+        .orb {
+            position: absolute; border-radius: 50%;
+            filter: blur(90px); pointer-events: none;
+            animation: drift linear infinite alternate;
+        }
+        .orb1 { width: 480px; height: 480px; background: rgba(124,58,237,0.22); top:-160px; left:-140px; animation-duration: 11s; }
+        .orb2 { width: 400px; height: 400px; background: rgba(255,45,107,0.18); bottom:-120px; right:-100px; animation-duration: 14s; animation-delay:-5s; }
+        .orb3 { width: 280px; height: 280px; background: rgba(255,130,100,0.12); top:38%; left:55%; animation-duration: 9s; animation-delay:-2s; }
+ 
+        @keyframes drift {
+            from { transform: translate(0,0) scale(1); }
+            to   { transform: translate(40px,28px) scale(1.1); }
+        }
+ 
+        /* ── LAYOUT ── */
+        .page {
+            position: relative; z-index: 10;
             min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-            background-image: radial-gradient(circle at 20% 50%, #ff4d6d22 0%, transparent 50%),
-                              radial-gradient(circle at 80% 20%, #c9184a22 0%, transparent 50%);
+            display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
+            padding: 24px 20px;
         }
-
+ 
+        /* ── LOGO ── */
+        .logo-wrap {
+            text-align: center; margin-bottom: 32px;
+            animation: fadeDown 0.65s cubic-bezier(0.22,1,0.36,1) both;
+        }
+        .shield {
+            width: 72px; height: 72px; border-radius: 22px; margin: 0 auto 14px;
+            background: linear-gradient(145deg, var(--rose) 0%, var(--violet) 100%);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 32px;
+            box-shadow: 0 0 0 1px rgba(255,255,255,0.12), 0 8px 40px var(--rose-glow), 0 0 80px var(--violet-glow);
+            animation: shieldPulse 3.5s ease-in-out infinite;
+        }
+        @keyframes shieldPulse {
+            0%,100% { box-shadow: 0 0 0 1px rgba(255,255,255,0.12), 0 8px 40px var(--rose-glow), 0 0 80px var(--violet-glow); }
+            50%      { box-shadow: 0 0 0 1px rgba(255,255,255,0.18), 0 8px 60px var(--rose-glow), 0 0 120px var(--violet-glow); }
+        }
+        .logo-name {
+            font-family: 'Syne', sans-serif; font-size: 36px; font-weight: 800;
+            letter-spacing: -1px; line-height: 1;
+        }
+        .logo-name .she { color: #fff; }
+        .logo-name .safe {
+            background: linear-gradient(90deg, var(--rose), #ff8fab, #e879f9);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .logo-tagline { font-size: 13px; color: var(--text-muted); margin-top: 6px; letter-spacing: 0.3px; }
+ 
+        /* ── CARD ── */
         .card {
-            background: var(--white);
+            width: 100%; max-width: 420px;
+            background: var(--glass);
+            border: 1px solid var(--glass-border);
             border-radius: 28px;
-            padding: 40px 36px;
-            width: 100%;
-            max-width: 420px;
-            box-shadow: 0 30px 80px rgba(255, 77, 109, 0.2);
-            animation: slideUp 0.6s ease;
+            padding: 36px 32px 32px;
+            backdrop-filter: blur(28px);
+            -webkit-backdrop-filter: blur(28px);
+            box-shadow:
+                0 2px 0 rgba(255,255,255,0.07) inset,
+                0 20px 80px rgba(0,0,0,0.5),
+                0 0 0 0.5px rgba(255,255,255,0.06);
+            animation: fadeUp 0.75s cubic-bezier(0.22,1,0.36,1) both 0.12s;
         }
-
-        @keyframes slideUp {
-            from { opacity: 0; transform: translateY(30px); }
-            to { opacity: 1; transform: translateY(0); }
+ 
+        @keyframes fadeUp   { from { opacity:0; transform:translateY(28px); } to { opacity:1; transform:translateY(0); } }
+        @keyframes fadeDown { from { opacity:0; transform:translateY(-18px); } to { opacity:1; transform:translateY(0); } }
+ 
+        .card-header { margin-bottom: 26px; }
+        .card-title {
+            font-family: 'Syne', sans-serif; font-size: 22px; font-weight: 800;
+            letter-spacing: -0.4px; color: #fff;
         }
-
-        .logo {
-            text-align: center;
-            margin-bottom: 32px;
+        .card-sub { font-size: 13.5px; color: var(--text-muted); margin-top: 3px; }
+ 
+        /* ── FIELDS ── */
+        .field { margin-bottom: 16px; }
+        .field label {
+            display: block; font-size: 11.5px; font-weight: 500;
+            color: var(--text-muted); margin-bottom: 8px;
+            letter-spacing: 0.7px; text-transform: uppercase;
         }
-
-        .logo-icon {
-            width: 60px;
-            height: 60px;
-            background: linear-gradient(135deg, var(--pink), var(--dark-pink));
-            border-radius: 18px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 28px;
-            margin: 0 auto 12px;
-            box-shadow: 0 8px 20px rgba(255, 77, 109, 0.4);
+        .field-wrap { position: relative; }
+        .field-icon {
+            position: absolute; left: 14px; top: 50%; transform: translateY(-50%);
+            font-size: 15px; pointer-events: none; opacity: 0.5;
+            transition: opacity 0.2s;
         }
-
-        .logo h1 {
-            font-family: 'Playfair Display', serif;
-            font-size: 28px;
-            color: var(--dark);
+        .field input {
+            width: 100%; padding: 13px 16px 13px 42px;
+            background: var(--input-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 13px; color: #fff;
+            font-family: 'DM Sans', sans-serif; font-size: 14.5px;
+            outline: none; transition: all 0.25s ease;
+            -webkit-appearance: none;
         }
-
-        .logo p {
-            font-size: 13px;
-            color: var(--gray);
-            margin-top: 4px;
+        .field input::placeholder { color: var(--text-hint); }
+        .field input:focus {
+            border-color: var(--rose);
+            background: var(--input-bg-focus);
+            box-shadow: 0 0 0 3px rgba(255,45,107,0.2);
         }
-
-        .form-group {
-            margin-bottom: 18px;
-        }
-
-        label {
-            display: block;
-            font-size: 13px;
-            font-weight: 500;
-            color: var(--dark);
-            margin-bottom: 7px;
-        }
-
-        input {
-            width: 100%;
-            padding: 13px 16px;
-            border: 2px solid #f0f0f0;
-            border-radius: 12px;
-            font-family: 'DM Sans', sans-serif;
-            font-size: 14px;
-            color: var(--dark);
+        .field input:focus + .field-icon,
+        .field-wrap:focus-within .field-icon { opacity: 0.9; }
+ 
+        /* ── BUTTON ── */
+        .btn-primary {
+            width: 100%; padding: 15px 20px; margin-top: 6px;
+            background: linear-gradient(135deg, var(--rose) 0%, var(--rose-mid) 45%, var(--violet) 100%);
+            border: none; border-radius: 14px; color: #fff;
+            font-family: 'Syne', sans-serif; font-size: 15px; font-weight: 700;
+            letter-spacing: 0.2px; cursor: pointer;
             transition: all 0.3s ease;
-            outline: none;
-            background: #fafafa;
+            box-shadow: 0 4px 24px var(--rose-glow), 0 2px 0 rgba(255,255,255,0.12) inset;
+            position: relative; overflow: hidden;
         }
-
-        input:focus {
-            border-color: var(--pink);
-            background: var(--white);
-            box-shadow: 0 0 0 4px rgba(255, 77, 109, 0.1);
+        .btn-primary::after {
+            content: ''; position: absolute; inset: 0;
+            background: linear-gradient(135deg, rgba(255,255,255,0.15), transparent 60%);
+            opacity: 0; transition: opacity 0.3s;
         }
-
-        .btn {
-            width: 100%;
-            padding: 14px;
-            background: linear-gradient(135deg, var(--pink), var(--dark-pink));
-            color: white;
-            border: none;
-            border-radius: 12px;
-            font-family: 'DM Sans', sans-serif;
-            font-size: 15px;
-            font-weight: 500;
-            cursor: pointer;
-            margin-top: 8px;
-            transition: all 0.3s ease;
-            box-shadow: 0 6px 20px rgba(255, 77, 109, 0.35);
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 36px var(--rose-glow); }
+        .btn-primary:hover::after { opacity: 1; }
+        .btn-primary:active { transform: translateY(0); }
+        .btn-primary:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+ 
+        /* ── DIVIDER ── */
+        .divider {
+            display: flex; align-items: center; gap: 12px;
+            margin: 22px 0 18px; color: var(--text-hint); font-size: 12px;
         }
-
-        .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 28px rgba(255, 77, 109, 0.45);
+        .divider::before, .divider::after {
+            content: ''; flex: 1; height: 1px; background: var(--glass-border);
         }
-
-        .btn:active {
-            transform: translateY(0);
+ 
+        /* ── LINK ROW ── */
+        .link-row {
+            text-align: center; font-size: 13.5px; color: var(--text-muted);
         }
-
-        .register-link {
-            text-align: center;
-            margin-top: 20px;
-            font-size: 13px;
-            color: var(--gray);
+        .link-row a { color: #ff8fab; text-decoration: none; font-weight: 500; transition: color 0.2s; }
+        .link-row a:hover { color: var(--rose); }
+ 
+        /* ── MESSAGE ── */
+        .msg {
+            padding: 11px 15px; border-radius: 11px;
+            font-size: 13px; margin-bottom: 18px;
+            display: none; text-align: center; backdrop-filter: blur(8px);
         }
-
-        .register-link a {
-            color: var(--pink);
-            text-decoration: none;
-            font-weight: 500;
+        .msg.success { background: rgba(34,197,94,0.15); border: 1px solid rgba(34,197,94,0.3); color: #86efac; display: block; }
+        .msg.error   { background: rgba(255,45,107,0.12); border: 1px solid rgba(255,45,107,0.3); color: #fda4af; display: block; }
+ 
+        /* ── TRUST BADGES ── */
+        .badges {
+            display: flex; gap: 8px; justify-content: center;
+            margin-top: 24px; flex-wrap: wrap;
+            animation: fadeUp 0.8s cubic-bezier(0.22,1,0.36,1) both 0.3s;
         }
-
-        .message {
-            padding: 12px 16px;
-            border-radius: 10px;
-            font-size: 13px;
-            margin-bottom: 16px;
-            display: none;
-            text-align: center;
+        .badge {
+            font-size: 11px; padding: 5px 12px; border-radius: 20px;
+            background: rgba(255,255,255,0.055);
+            border: 1px solid rgba(255,255,255,0.1);
+            color: var(--text-muted);
         }
-
-        .message.success {
-            background: #d4edda;
-            color: #155724;
-            display: block;
-        }
-
-        .message.error {
-            background: #f8d7da;
-            color: #721c24;
-            display: block;
-        }
-
-        .btn:disabled {
-            opacity: 0.7;
-            cursor: not-allowed;
-            transform: none;
-        }
-
-        .welcome-text {
-            text-align: center;
-            margin-bottom: 28px;
-        }
-
-        .welcome-text h2 {
-            font-size: 20px;
-            color: var(--dark);
-            font-weight: 500;
-        }
-
-        .welcome-text p {
-            font-size: 13px;
-            color: var(--gray);
-            margin-top: 4px;
+ 
+        /* ── MOBILE ── */
+        @media (max-width: 480px) {
+            .card { padding: 28px 22px 26px; border-radius: 24px; }
+            .logo-name { font-size: 30px; }
+            .shield { width: 62px; height: 62px; font-size: 26px; }
         }
     </style>
 </head>
 <body>
-    <div class="card">
-        <div class="logo">
-            <div class="logo-icon">🛡️</div>
-            <h1>SheSafe</h1>
-            <p>Your private family safety hub</p>
+    <!-- Background -->
+    <div class="bg-scene">
+        <div class="bg-mesh"></div>
+        <div class="bg-grid"></div>
+        <div class="bg-noise"></div>
+        <div class="orb orb1"></div>
+        <div class="orb orb2"></div>
+        <div class="orb orb3"></div>
+    </div>
+ 
+    <div class="page">
+        <!-- Logo -->
+        <div class="logo-wrap">
+            <div class="shield">🛡️</div>
+            <div class="logo-name"><span class="she">She</span><span class="safe">Safe</span></div>
+            <div class="logo-tagline">Your private family safety hub</div>
         </div>
-
-        <div class="welcome-text">
-            <h2>Welcome back 👋</h2>
-            <p>Login to access your safety circle</p>
+ 
+        <!-- Card -->
+        <div class="card">
+            <div class="card-header">
+                <div class="card-title">Welcome back 👋</div>
+                <div class="card-sub">Login to access your safety circle</div>
+            </div>
+ 
+            <div class="msg" id="message"></div>
+ 
+            <div class="field">
+                <label>Email Address</label>
+                <div class="field-wrap">
+                    <input type="email" id="email" placeholder="you@example.com" autocomplete="email" />
+                    <span class="field-icon">✉️</span>
+                </div>
+            </div>
+ 
+            <div class="field">
+                <label>Password</label>
+                <div class="field-wrap">
+                    <input type="password" id="password" placeholder="Enter your password" autocomplete="current-password" />
+                    <span class="field-icon">🔒</span>
+                </div>
+            </div>
+ 
+            <button class="btn-primary" id="loginBtn" onclick="login()">
+                Login to SheSafe →
+            </button>
+ 
+            <div class="divider">or</div>
+ 
+            <div class="link-row">
+                Don't have an account? <a href="register.html">Create one free</a>
+            </div>
         </div>
-
-        <div class="message" id="message"></div>
-
-        <div class="form-group">
-            <label>Email Address</label>
-            <input type="email" id="email" placeholder="Enter your email" />
-        </div>
-
-        <div class="form-group">
-            <label>Password</label>
-            <input type="password" id="password" placeholder="Enter your password" />
-        </div>
-
-        <button class="btn" id="loginBtn" onclick="login()">
-            Login to SheSafe
-        </button>
-
-        <div class="register-link">
-            Don't have an account? <a href="register.html">Register here</a>
+ 
+        <!-- Badges -->
+        <div class="badges">
+            <span class="badge">🔒 End-to-end secure</span>
+            <span class="badge">📍 Live GPS tracking</span>
+            <span class="badge">🆘 Instant SOS</span>
         </div>
     </div>
-
+ 
     <script>
-        // Check if already logged in
         window.onload = async () => {
-            const res = await fetch('/api/auth/check');
-            const data = await res.json();
-            if (data.loggedIn) {
-                window.location.href = 'dashboard.html';
-            }
+            try {
+                const res = await fetch('/api/auth/check');
+                const data = await res.json();
+                if (data.loggedIn) window.location.href = 'dashboard.html';
+            } catch(e) {}
         };
-
+ 
         async function login() {
-            const email = document.getElementById('email').value.trim();
+            const email    = document.getElementById('email').value.trim();
             const password = document.getElementById('password').value;
             const btn = document.getElementById('loginBtn');
             const msg = document.getElementById('message');
-
-            // Reset message
-            msg.className = 'message';
-            msg.textContent = '';
-
-            // Basic validation
+ 
+            msg.className = 'msg'; msg.textContent = '';
+ 
             if (!email || !password) {
-                msg.className = 'message error';
-                msg.textContent = '⚠️ Please enter email and password!';
+                msg.className = 'msg error';
+                msg.textContent = '⚠️ Please enter your email and password.';
                 return;
             }
-
-            // Disable button while processing
-            btn.disabled = true;
-            btn.textContent = 'Logging in...';
-
+ 
+            btn.disabled = true; btn.textContent = 'Logging in...';
+ 
             try {
-                const response = await fetch('/api/auth/login', {
+                const res  = await fetch('/api/auth/login', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ email, password })
                 });
-
-                const data = await response.json();
-
+                const data = await res.json();
+ 
                 if (data.success) {
-                    msg.className = 'message success';
+                    msg.className = 'msg success';
                     msg.textContent = '✅ Login successful! Redirecting...';
-                    setTimeout(() => {
-                        window.location.href = 'dashboard.html';
-                    }, 1500);
+                    setTimeout(() => window.location.href = 'dashboard.html', 1400);
                 } else {
-                    msg.className = 'message error';
+                    msg.className = 'msg error';
                     msg.textContent = '❌ ' + data.message;
+                    btn.disabled = false; btn.textContent = 'Login to SheSafe →';
                 }
-            } catch (err) {
-                msg.className = 'message error';
+            } catch(e) {
+                msg.className = 'msg error';
                 msg.textContent = '❌ Something went wrong. Please try again.';
+                btn.disabled = false; btn.textContent = 'Login to SheSafe →';
             }
-
-            btn.disabled = false;
-            btn.textContent = 'Login to SheSafe';
         }
-
-        // Allow pressing Enter to submit
-        document.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') login();
-        });
+ 
+        document.addEventListener('keypress', e => { if (e.key === 'Enter') login(); });
     </script>
 </body>
 </html>
-
-
-<!-- ---
-
-> **What this page does:**
-> - Same beautiful SheSafe design as register page
-> - Auto-redirects to dashboard if already logged in
-> - Sends email & password to `/api/auth/login`
-> - On success redirects to `dashboard.html`
-> - On fail shows error message
-
---- -->
-
